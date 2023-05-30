@@ -27,7 +27,7 @@ const float XMAX = 10.0;
 const float YMIN = -10.0;
 const float YMAX = 10.0;
 
-const bool ANTIALIASING = false;
+const bool ANTIALIASING = true;
 
 vector<SceneObject*> sceneObjects;
 TextureBMP texture;
@@ -256,7 +256,77 @@ void initBox()
     sceneObjects.push_back(lamp);
 }
 
+void initCones()
+{
+    for (int i = -1; i < 2; i++) {
+        Cone *cone = new Cone(glm::vec3(i*20, -15, -145.0), 0.5,1);
+        cone->setColor(glm::vec3(0.2,0.1,0.4));
+        cone->setSpecularity(true);
+        cone->setShininess(5);
+        sceneObjects.push_back(cone);
+    }
+}
 
+void initSpheres()
+{
+    Sphere *transparentSphere = new Sphere(glm::vec3(0, -22, -145.0), 5.0);
+    transparentSphere->setColor(glm::vec3(0, 0, 0.5));   //Set colour to blue
+    transparentSphere->setSpecularity(true);
+    transparentSphere->setReflectivity(true, 0.1);
+    transparentSphere->setTransparency(true, 0.8);
+    sceneObjects.push_back(transparentSphere);		 //Add sphere to scene objects
+
+    Sphere *refractiveSphere = new Sphere(glm::vec3(20, -22, -145.0), 5.0);
+    refractiveSphere->setColor(glm::vec3(0.2, 0, 0));
+    refractiveSphere->setSpecularity(false);
+    refractiveSphere->setRefractivity(true, 0.9, 1.02);
+    refractiveSphere->setReflectivity(true, 0.1);
+    sceneObjects.push_back(refractiveSphere);		 //Add sphere to scene objects
+
+    Sphere *matteSphere = new Sphere(glm::vec3(-20, -22, -145.0), 5.0);
+    matteSphere->setColor(glm::vec3(0, 0, 0.5));   //Set colour to blue
+    matteSphere->setSpecularity(false);
+    sceneObjects.push_back(matteSphere);		 //Add sphere to scene objects
+}
+
+void initMirrors()
+{
+    Plane *fMirrorFrame = new Plane(glm::vec3(-30, -26, -190.1),     //Point A
+                                 glm::vec3(30, -26, -190.1),      //Point B
+                                 glm::vec3(30, -9, -190.1),     //Point C
+                                 glm::vec3(-30, -9, -190.1));   //Point D
+    fMirrorFrame->setColor(glm::vec3(0.83, 0.69, 0.22));
+    fMirrorFrame->setSpecularity(true);
+    fMirrorFrame->setShininess(7);
+    sceneObjects.push_back(fMirrorFrame);
+
+    Plane *fMirror = new Plane(glm::vec3(-29, -25, -190),     //Point A
+                             glm::vec3(29, -25, -190),      //Point B
+                             glm::vec3(29, -10, -190),     //Point C
+                             glm::vec3(-29, -10, -190));   //Point D
+    fMirror->setColor(glm::vec3(0, 0, 0));
+    fMirror->setSpecularity(false);
+    fMirror->setReflectivity(true, 1);
+    sceneObjects.push_back(fMirror);
+
+    Plane *bMirrorFrame = new Plane(glm::vec3(30, -26, -9.9),     //Point A
+                                 glm::vec3(-30, -26, -9.9),      //Point B
+                                 glm::vec3(-30, -9, -9.9),     //Point C
+                                 glm::vec3(30, -9, -9.9));   //Point D
+    bMirrorFrame->setColor(glm::vec3(0.83, 0.69, 0.22));
+    bMirrorFrame->setSpecularity(true);
+    bMirrorFrame->setShininess(7);
+    sceneObjects.push_back(bMirrorFrame);
+
+    Plane *bMirror = new Plane(glm::vec3(29, -25, -10),     //Point A
+                             glm::vec3(-29, -25, -10),      //Point B
+                             glm::vec3(-29, -10, -10),     //Point C
+                             glm::vec3(29, -10, -10));   //Point D
+    bMirror->setColor(glm::vec3(0, 0, 0));
+    bMirror->setSpecularity(false);
+    bMirror->setReflectivity(true, 1);
+    sceneObjects.push_back(bMirror);
+}
 
 //---This function initializes the scene ------------------------------------------- 
 //   Specifically, it creates scene objects (spheres, planes, cones, cylinders etc)
@@ -273,42 +343,9 @@ void initialize()
 
     texture = TextureBMP("scifi.bmp");
     initBox();
-
-    Sphere *transparentSphere = new Sphere(glm::vec3(20, -20, -135.0), 5.0);
-    transparentSphere->setColor(glm::vec3(0, 0, 0.5));   //Set colour to blue
-    transparentSphere->setSpecularity(true);
-    transparentSphere->setReflectivity(true, 0.1);
-    transparentSphere->setTransparency(true, 0.8);
-    sceneObjects.push_back(transparentSphere);		 //Add sphere to scene objects
-
-    Sphere *refractiveSphere = new Sphere(glm::vec3(-10, 10, -135.0), 5.0);
-    refractiveSphere->setColor(glm::vec3(0.2, 0, 0));
-    refractiveSphere->setSpecularity(false);
-    refractiveSphere->setRefractivity(true, 0.8, 1.01);
-    refractiveSphere->setReflectivity(true, 0.1);
-    sceneObjects.push_back(refractiveSphere);		 //Add sphere to scene objects
-
-    Sphere *matteSphere = new Sphere(glm::vec3(-10, -20, -185.0), 5.0);
-    matteSphere->setColor(glm::vec3(0, 0, 0.5));   //Set colour to blue
-    matteSphere->setSpecularity(false);
-    sceneObjects.push_back(matteSphere);		 //Add sphere to scene objects
-
-    Plane *mirror = new Plane(glm::vec3(-30., -25, -170),     //Point A
-                             glm::vec3(-15, -25, -200),      //Point B
-                             glm::vec3(-15, -10, -200),     //Point C
-                             glm::vec3(-30., -10, -170));   //Point D
-    mirror->setColor(glm::vec3(0, 0, 0));
-    mirror->setSpecularity(false);
-    mirror->setReflectivity(true, 1);
-    sceneObjects.push_back(mirror);
-
-    Cone *cone = new Cone(glm::vec3(0, -15, -145.0), 0.5,1);
-    cone->setColor(glm::vec3(0.2,0.1,0.4));
-    cone->setSpecularity(true);
-    cone->setShininess(5);
-    sceneObjects.push_back(cone);
-
-
+    initCones();
+    initSpheres();
+    initMirrors();
 
 }
 

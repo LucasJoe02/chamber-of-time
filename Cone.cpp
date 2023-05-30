@@ -38,7 +38,7 @@ float Cone::intersect(glm::vec3 p0, glm::vec3 dir)
 
     float t1y = y0 + dy*t1;
     float t2y = y0 + dy*t2;
-    float maxY = yc+h;
+    float maxY = yc+h-10;
 
     if (t1 < 0 || t1y > maxY)
     {
