@@ -12,6 +12,7 @@
 #include <glm/glm.hpp>
 #include "Sphere.h"
 #include "Plane.h"
+#include "Cone.h"
 #include "SceneObject.h"
 #include "Ray.h"
 #include "TextureBMP.h"
@@ -26,7 +27,7 @@ const float XMAX = 10.0;
 const float YMIN = -10.0;
 const float YMAX = 10.0;
 
-const bool ANTIALIASING = true;
+const bool ANTIALIASING = false;
 
 vector<SceneObject*> sceneObjects;
 TextureBMP texture;
@@ -280,7 +281,7 @@ void initialize()
     transparentSphere->setTransparency(true, 0.8);
     sceneObjects.push_back(transparentSphere);		 //Add sphere to scene objects
 
-    Sphere *refractiveSphere = new Sphere(glm::vec3(-2, -10, -135.0), 5.0);
+    Sphere *refractiveSphere = new Sphere(glm::vec3(-10, 10, -135.0), 5.0);
     refractiveSphere->setColor(glm::vec3(0.2, 0, 0));
     refractiveSphere->setSpecularity(false);
     refractiveSphere->setRefractivity(true, 0.8, 1.01);
@@ -300,6 +301,13 @@ void initialize()
     mirror->setSpecularity(false);
     mirror->setReflectivity(true, 1);
     sceneObjects.push_back(mirror);
+
+    Cone *cone = new Cone(glm::vec3(0, -15, -145.0), 0.5,1);
+    cone->setColor(glm::vec3(0.2,0.1,0.4));
+    cone->setSpecularity(true);
+    cone->setShininess(5);
+    sceneObjects.push_back(cone);
+
 
 
 }
