@@ -17,6 +17,7 @@
 #include "Ray.h"
 #include "TextureBMP.h"
 #include <GL/freeglut.h>
+#include "FastNoiseLite.h"
 using namespace std;
 
 const float EDIST = 40.0;
@@ -26,12 +27,27 @@ const float XMIN = -10.0;
 const float XMAX = 10.0;
 const float YMIN = -10.0;
 const float YMAX = 10.0;
+const float PI = 3.1415;
 
-const bool ANTIALIASING = true;
+const glm::vec2 FOG_RANGE(-50, -220);
+const glm::vec3 FOG_COL(0.7);
+
+const bool FOG = false;
+const bool ANTIALIASING = false;
 
 vector<SceneObject*> sceneObjects;
 TextureBMP texture;
 
+float noiseOffset;
+FastNoiseLite noise;
+
+
+glm::vec3 fog(glm::vec3 color, Ray ray)
+{
+    float lambda = (ray.hit.z - FOG_RANGE[0])/(FOG_RANGE[1]-FOG_RANGE[0]);
+    color = (1-lambda)*color + lambda * FOG_COL;
+    return color;
+}
 
 //---The most important function in a ray tracer! ---------------------------------- 
 //   Computes the colour value obtained by tracing a ray and finding its 
@@ -65,14 +81,71 @@ glm::vec3 trace(Ray ray, int step)
     }
 
     if(ray.index == 1) {
-        //Texture mapping
-        float texcoords = (ray.hit.x - (-30))/((30)-(-30));
-        float texcoordt = (ray.hit.y - (-30))/((30)-(-30));
-        if (texcoords >= 0 && texcoords <= 1 && texcoordt >= 0 && texcoordt <= 1) {
-            color=texture.getColorAt(texcoordt, texcoords);
-            obj->setColor(color);
+        //Procedural pattern
+        noiseOffset = 5;
+        float value = noise.GetNoise(ray.hit.x*10, ray.hit.y*10);
+
+        float h = (1.0 - value) * 6.0f;
+        float x = 1.0f - std::abs(std::fmod(h, 2.0f) - 1.0f);
+
+        float r, g, b;
+
+        if (h >= 0.0f && h < 1.0f) {
+            r = 1.0f;
+            g = x;
+            b = 0.0f;
+        } else if (h >= 1.0f && h < 2.0f) {
+            r = x;
+            g = 1.0f;
+            b = 0.0f;
+        } else if (h >= 2.0f && h < 3.0f) {
+            r = 0.0f;
+            g = 1.0f;
+            b = x;
+        } else if (h >= 3.0f && h < 4.0f) {
+            r = 0.0f;
+            g = x;
+            b = 1.0f;
+        } else if (h >= 4.0f && h < 5.0f) {
+            r = x;
+            g = 0.0f;
+            b = 1.0f;
+        } else {
+            r = 1.0f;
+            g = 0.0f;
+            b = x;
         }
+
+        color = glm::vec3(r*0.6, g*0.6, b*0.6);
+
+        obj->setColor(color);
+
     }
+
+//    if(ray.index == 1) {
+////        float theta = atan2(ray.hit.x, ray.hit.z);
+
+////        float radius = 5;
+
+////        float phi = acos(ray.hit.y / radius);
+
+
+////        float raw_u = theta / (2 * PI);
+
+////        // Map the angles to texture coordinates
+////        float texcoords = 1 - (raw_u + 0.5); // Range from 0 to 1
+////        float texcoordt = 1 - phi / PI;
+
+//        //Texture mapping
+//        float texcoords = (ray.hit.x - (-30))/((30)-(-30));
+//        float texcoordt = (ray.hit.y - (-30))/((30)-(-30));
+
+
+//        if (texcoords >= 0 && texcoords <= 1 && texcoordt >= 0 && texcoordt <= 1) {
+//            color = texture.getColorAt(texcoordt, texcoords);
+//            obj->setColor(color);
+//        }
+//    }
 
     color = obj->lighting(lightPos,-ray.dir,ray.hit);						//Object's colour
 
@@ -115,6 +188,10 @@ glm::vec3 trace(Ray ray, int step)
         Ray transparentRay(ray.hit, ray.dir);
         glm::vec3 transparentColor = trace(transparentRay, step + 1);
         color = color + (rho * transparentColor);
+    }
+
+    if(FOG) {
+        color = fog(color, ray);
     }
 
     return color;
@@ -284,7 +361,7 @@ void initSpheres()
     sceneObjects.push_back(refractiveSphere);		 //Add sphere to scene objects
 
     Sphere *matteSphere = new Sphere(glm::vec3(-20, -22, -145.0), 5.0);
-    matteSphere->setColor(glm::vec3(0, 0, 0.5));   //Set colour to blue
+    matteSphere->setColor(glm::vec3(1, 1, 1));   //Set colour to blue
     matteSphere->setSpecularity(false);
     sceneObjects.push_back(matteSphere);		 //Add sphere to scene objects
 }
@@ -341,7 +418,8 @@ void initialize()
 
     glClearColor(0, 0, 0, 1);
 
-    texture = TextureBMP("scifi.bmp");
+    texture = TextureBMP("watermelon.bmp");
+
     initBox();
     initCones();
     initSpheres();
