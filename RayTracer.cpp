@@ -27,7 +27,7 @@ const float XMIN = -10.0;
 const float XMAX = 10.0;
 const float YMIN = -10.0;
 const float YMAX = 10.0;
-const float PI = 3.1415;
+const float PI = 3.14159265f;
 
 const glm::vec2 FOG_RANGE(-50, -220);
 const glm::vec3 FOG_COL(0.7);
@@ -82,7 +82,6 @@ glm::vec3 trace(Ray ray, int step)
 
     if(ray.index == 1) {
         //Procedural pattern
-        noiseOffset = 5;
         float value = noise.GetNoise(ray.hit.x*10, ray.hit.y*10);
 
         float h = (1.0 - value) * 6.0f;
@@ -122,30 +121,16 @@ glm::vec3 trace(Ray ray, int step)
 
     }
 
-//    if(ray.index == 1) {
-////        float theta = atan2(ray.hit.x, ray.hit.z);
+    if(obj->hasSphereTex()) {
+        glm::vec3 normal = obj->normal(ray.hit);
+        float texcoords = atan2(normal.x, normal.z) / (2*PI) + 0.5;
+        float texcoordt = normal.y * 0.5 + 0.5;
 
-////        float radius = 5;
-
-////        float phi = acos(ray.hit.y / radius);
-
-
-////        float raw_u = theta / (2 * PI);
-
-////        // Map the angles to texture coordinates
-////        float texcoords = 1 - (raw_u + 0.5); // Range from 0 to 1
-////        float texcoordt = 1 - phi / PI;
-
-//        //Texture mapping
-//        float texcoords = (ray.hit.x - (-30))/((30)-(-30));
-//        float texcoordt = (ray.hit.y - (-30))/((30)-(-30));
-
-
-//        if (texcoords >= 0 && texcoords <= 1 && texcoordt >= 0 && texcoordt <= 1) {
-//            color = texture.getColorAt(texcoordt, texcoords);
-//            obj->setColor(color);
-//        }
-//    }
+        if (texcoords >= 0 && texcoords <= 1 && texcoordt >= 0 && texcoordt <= 1) {
+            color = texture.getColorAt(texcoordt, texcoords);
+            obj->setColor(color);
+        }
+    }
 
     color = obj->lighting(lightPos,-ray.dir,ray.hit);						//Object's colour
 
@@ -155,8 +140,8 @@ glm::vec3 trace(Ray ray, int step)
     float lightDist = glm::length(lightVec);
     SceneObject *shadowObject = sceneObjects[shadowRay.index];
     if(shadowRay.index > -1 && shadowRay.dist < lightDist && shadowRay.index != ray.index) {
-        if (shadowObject->isTransparent() || shadowObject->isRefractive()) color = 0.8f * obj->getColor();
-        else color = 0.2f * obj->getColor(); //0.2 = ambient scale factor
+        if (shadowObject->isTransparent() || shadowObject->isRefractive()) color = 0.5f * obj->getColor();
+        else color = 0.1f * obj->getColor(); //0.2 = ambient scale factor
     }
 
     if(obj->isRefractive() && step < MAX_STEPS) {
@@ -363,6 +348,7 @@ void initSpheres()
     Sphere *matteSphere = new Sphere(glm::vec3(-20, -22, -145.0), 5.0);
     matteSphere->setColor(glm::vec3(1, 1, 1));   //Set colour to blue
     matteSphere->setSpecularity(false);
+    matteSphere->setSphereTex(true);
     sceneObjects.push_back(matteSphere);		 //Add sphere to scene objects
 }
 
@@ -418,6 +404,7 @@ void initialize()
 
     glClearColor(0, 0, 0, 1);
 
+    noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
     texture = TextureBMP("watermelon.bmp");
 
     initBox();

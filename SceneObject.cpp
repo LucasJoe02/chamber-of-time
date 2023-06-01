@@ -80,6 +80,11 @@ bool SceneObject::isTransparent()
 	return tran_;
 }
 
+bool SceneObject::hasSphereTex()
+{
+    return sTex_;
+}
+
 void SceneObject::setColor(glm::vec3 col)
 {
 	color_ = col;
@@ -127,4 +132,9 @@ void SceneObject::setTransparency(bool flag, float tran_coeff)
 {
 	tran_ = flag;
 	tranc_ = tran_coeff;
+}
+
+void SceneObject::setSphereTex(bool flag)
+{
+    sTex_ = flag;
 }
