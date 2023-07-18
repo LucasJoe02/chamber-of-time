@@ -54,7 +54,7 @@ This project is licensed under the MIT License - see the LICENSE.txt file for de
 ## Media and Tools Used
 I do not own any of the following materials.
 
-https://www.texturecan.com/details/111/
-https://jonoshields.com/post/procedural-patterns
-https://www.baeldung.com/cs/convert-color-hsl-rgb
-https://github.com/Auburn/FastNoiseLite)
+* https://www.texturecan.com/details/111/
+* https://jonoshields.com/post/procedural-patterns
+* https://www.baeldung.com/cs/convert-color-hsl-rgb
+* https://github.com/Auburn/FastNoiseLite)
