@@ -57,4 +57,4 @@ I do not own any of the following materials.
 * https://www.texturecan.com/details/111/
 * https://jonoshields.com/post/procedural-patterns
 * https://www.baeldung.com/cs/convert-color-hsl-rgb
-* https://github.com/Auburn/FastNoiseLite)
+* https://github.com/Auburn/FastNoiseLite
